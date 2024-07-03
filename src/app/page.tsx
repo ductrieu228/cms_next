@@ -4,7 +4,7 @@ const Home = ({
   folder:React.ReactNode,
 }) => {
   return (
-    <div className=''>Home
+    <div className=''>Home not folder
       {folder}
     </div>
   )
