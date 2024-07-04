@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activity_logs {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  action       String    @db.VarChar(255)
+  user_id      BigInt    @db.UnsignedBigInt
+  model_id     BigInt?   @db.UnsignedBigInt
+  success      Int
+  code         Int
+  ip           String    @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  error_detail String?   @db.VarChar(255)
+  users        users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "activity_logs_user_id_foreign")
+
+  @@index([user_id], map: "activity_logs_user_id_foreign")
+}
+
+model cache {
+  key        String @id @db.VarChar(255)
+  value      String @db.MediumText
+  expiration Int
+}
+
+model cache_locks {
+  key        String @id @db.VarChar(255)
+  owner      String @db.VarChar(255)
+  expiration Int
+}
+
+model categories {
+  id            Int             @id @default(autoincrement())
+  parent_id     Int?
+  name          String?         @db.VarChar(255)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  page_category page_category[]
+}
+
+model failed_jobs {
+  id         BigInt   @id
+  uuid       String   @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model job_batches {
+  id             String  @id @db.VarChar(255)
+  name           String  @db.VarChar(255)
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String  @db.LongText
+  options        String? @db.MediumText
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model jobs {
+  id           BigInt @id
+  queue        String @db.VarChar(255)
+  payload      String @db.LongText
+  attempts     Int    @db.TinyInt
+  reserved_at  Int?
+  available_at Int
+  created_at   Int
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model model_has_permissions {
+  permission_id BigInt      @db.UnsignedBigInt
+  model_type    String      @db.VarChar(255)
+  model_id      BigInt      @db.UnsignedBigInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_permissions_permission_id_foreign")
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+}
+
+model model_has_roles {
+  role_id    BigInt @db.UnsignedBigInt
+  model_type String @db.VarChar(255)
+  model_id   BigInt @db.UnsignedBigInt
+  roles      roles  @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "model_has_roles_role_id_foreign")
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+}
+
+model page_category {
+  id          Int        @id @default(autoincrement())
+  page_id     Int
+  category_id Int
+  created_at  DateTime?  @db.Timestamp(0)
+  updated_at  DateTime?  @db.Timestamp(0)
+  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "page_category_category_id_foreign")
+  pages       pages      @relation(fields: [page_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "page_category_page_id_foreign")
+
+  @@index([category_id], map: "page_category_category_id_foreign")
+  @@index([page_id], map: "page_category_page_id_foreign")
+}
+
+model page_tag {
+  id         Int       @id @default(autoincrement())
+  page_id    Int
+  tag_id     Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  pages      pages     @relation(fields: [page_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "page_tag_page_id_foreign")
+  tags       tags      @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "page_tag_tag_id_foreign")
+
+  @@index([page_id], map: "page_tag_page_id_foreign")
+  @@index([tag_id], map: "page_tag_tag_id_foreign")
+}
+
+model pages {
+  id              Int             @id @default(autoincrement())
+  title           String?         @db.VarChar(255)
+  user_id         BigInt?         @db.UnsignedBigInt
+  theme_id        Int?
+  html_code       String?         @db.Text
+  css_code        String?         @db.Text
+  js_code         String?         @db.Text
+  path_file       String?         @db.VarChar(255)
+  status          pages_status?
+  is_deleted      Int             @default(0)
+  ogp_img_id      Int?
+  ogp_description String?         @db.VarChar(255)
+  created_at      DateTime?       @db.DateTime(0)
+  updated_at      DateTime?       @db.DateTime(0)
+  page_category   page_category[]
+  page_tag        page_tag[]
+  users           users?          @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_pages_user_id")
+  themes          themes?         @relation(fields: [theme_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "pages_ibfk_2")
+  uploads         uploads?        @relation(fields: [ogp_img_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "pages_ogp_img_id_foreign")
+
+  @@index([user_id], map: "fk_pages_user_id")
+  @@index([ogp_img_id], map: "pages_ogp_img_id_foreign")
+  @@index([theme_id], map: "theme_id")
+}
+
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model permissions {
+  id                    BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  name                  String                  @db.VarChar(255)
+  guard_name            String                  @db.VarChar(255)
+  created_at            DateTime?               @db.Timestamp(0)
+  updated_at            DateTime?               @db.Timestamp(0)
+  model_has_permissions model_has_permissions[]
+  role_has_permissions  role_has_permissions[]
+
+  @@unique([name, guard_name], map: "permissions_name_guard_name_unique")
+}
+
+model role_has_permissions {
+  permission_id BigInt      @db.UnsignedBigInt
+  role_id       BigInt      @db.UnsignedBigInt
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_permission_id_foreign")
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "role_has_permissions_role_id_foreign")
+
+  @@id([permission_id, role_id])
+  @@index([role_id], map: "role_has_permissions_role_id_foreign")
+}
+
+model roles {
+  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  name                 String                 @db.VarChar(255)
+  guard_name           String                 @default("web") @db.VarChar(255)
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  model_has_roles      model_has_roles[]
+  role_has_permissions role_has_permissions[]
+  users                users[]
+
+  @@unique([name, guard_name], map: "roles_name_guard_name_unique")
+}
+
+model sessions {
+  id            String  @id @db.VarChar(255)
+  user_id       BigInt?
+  ip_address    String? @db.VarChar(45)
+  user_agent    String? @db.Text
+  payload       String  @db.LongText
+  last_activity Int
+}
+
+model tags {
+  id         Int        @id @default(autoincrement())
+  name       String?    @db.VarChar(255)
+  created_at DateTime?  @db.Timestamp(0)
+  updated_at DateTime?  @db.Timestamp(0)
+  page_tag   page_tag[]
+}
+
+model themes {
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar(255)
+  code       String?   @db.Text
+  path_file  String?   @db.VarChar(255)
+  created_at DateTime? @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  pages      pages[]
+}
+
+model uploads {
+  id         Int            @id @default(autoincrement())
+  file_name  String?        @db.VarChar(255)
+  file_type  String?        @db.VarChar(255)
+  file_path  String?        @db.VarChar(255)
+  capacity   Int?
+  created_at DateTime?      @db.DateTime(0)
+  updated_at DateTime?      @db.Timestamp(0)
+  user_id    BigInt?        @db.UnsignedBigInt
+  status     uploads_status @default(draft)
+  pages      pages[]
+  users      users?         @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_uploads_user_id")
+
+  @@index([user_id], map: "fk_uploads_user_id")
+}
+
+model users {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String          @db.VarChar(255)
+  email             String          @db.VarChar(255)
+  email_verified_at DateTime?       @db.Timestamp(0)
+  password          String          @db.VarChar(255)
+  role_id           BigInt?         @db.UnsignedBigInt
+  remember_token    String?         @db.VarChar(100)
+  created_at        DateTime?       @db.Timestamp(0)
+  updated_at        DateTime?       @db.Timestamp(0)
+  activity_logs     activity_logs[]
+  pages             pages[]
+  uploads           uploads[]
+  roles             roles?          @relation(fields: [role_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_role_id")
+
+  @@index([role_id], map: "fk_role_id")
+}
+
+enum pages_status {
+  draft
+  public
+  edit
+}
+
+enum uploads_status {
+  draft
+  public
+}
