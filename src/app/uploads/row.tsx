@@ -1,8 +1,30 @@
 import { uploads } from "@prisma/client";
 import Image from "next/image";
 import { format } from "date-fns";
+import { delFile } from "@/libs/actions";
+import Swal from "sweetalert2";
 
 const Row = ({ dataAll }: { dataAll: uploads }) => {
+
+  const handleClick = async (type:string, Id:number) => {
+    if(type == "del"){
+      const res = await delFile(Id);
+      if(res.success){
+        Swal.fire({
+          title: "Good job!",
+          text: "Files deleted",
+          icon: "success"
+        });
+      }else{
+        Swal.fire({
+          title: "Error!",
+          text: "Can not delete",
+          icon: "error"
+        });
+      }
+    }
+  }
+
   var image_symbol_path = "/uploads/icons8-file.svg"
   if(dataAll.file_path?.includes("documents")){
     if(dataAll.file_path?.includes(".doc")){
@@ -79,26 +101,15 @@ const Row = ({ dataAll }: { dataAll: uploads }) => {
       <td className="flex justify-end  px-3 py-4 whitespace-nowrap border-none h-[65.5px]">
         <div className="my-0 flex items-center h-8">
           <a
-            className="px-4 py-1.5 text-gray-900 bg-white border border-gray-400 hover:bg-gray-100 rounded-lg  me-2 mx-auto my-0 h-full"
-            href="#"
+            className="px-4 py-1.5 cursor-pointer text-white bg-gray-500 border border-gray-400 hover:bg-gray-900 rounded-lg  me-2 mx-auto my-0 h-full"
+            onClick={() => handleClick("down", dataAll.id)}
           >
             Download
           </a>
+          
           <a
-            href=""
-            className="px-4 py-1.5 text-gray-900 bg-white border border-gray-400 hover:bg-gray-100 rounded-lg  me-2 mx-auto my-0 h-full"
-          >
-            Draft
-          </a>
-          <a
-            href=""
-            className="px-4 py-1.5 text-gray-900 bg-white border border-gray-400 hover:bg-gray-100 rounded-lg  me-2 mx-auto my-0 h-full"
-          >
-            Public
-          </a>
-          <a
-            href=""
-            className="px-4 py-1.5 text-gray-900 bg-white border border-gray-400 hover:bg-gray-100 rounded-lg  me-2 mx-auto my-0 h-full"
+            onClick={() => handleClick("del", dataAll.id)}
+            className="px-4 py-1.5 cursor-pointer text-white bg-red-600 border border-gray-400 hover:bg-red-900 rounded-lg  me-2 mx-auto my-0 h-full"
           >
             削除
           </a>

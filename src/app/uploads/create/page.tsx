@@ -4,8 +4,11 @@ import "./form.css";
 import FormUpload from "./Form";
 import { useEffect, useState } from "react";
 
+
 const CreateUpload = () => {
   const [send, setSend] = useState<boolean>(false);
+  const [err, setErr] = useState<string>("");
+
 
   useEffect(() => {
     if(send){
@@ -15,10 +18,19 @@ const CreateUpload = () => {
         icon: "success"
       });
     }
-  }, [send]);
+    if(err){
+      Swal.fire({
+        title: "Error!",
+        text: err,
+        icon: "error"
+      });
+      setErr("");
+    }
+
+  }, [send, err]);
 
   return (
-    <FormUpload callback={setSend}/>
+    <FormUpload callback={[setSend, setErr]}/>
   );
 };
 

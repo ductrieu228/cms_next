@@ -8,15 +8,15 @@ import { Buffer } from "buffer";
 
 export const uploadTable = async (value: string) => {
   try {
-    const response:uploads[] = await prisma.uploads.findMany({
+    const response: uploads[] = await prisma.uploads.findMany({
       where: {
         file_name: {
           contains: value,
         },
       },
       orderBy: {
-        created_at: "desc"
-      }
+        created_at: "desc",
+      },
     });
     return response;
   } catch (error) {
@@ -25,10 +25,10 @@ export const uploadTable = async (value: string) => {
 };
 export const uploadTableAll = async () => {
   try {
-    const response:uploads[] = await prisma.uploads.findMany({
+    const response: uploads[] = await prisma.uploads.findMany({
       orderBy: {
-        created_at: "desc"
-      }
+        created_at: "desc",
+      },
     });
     return response;
   } catch (error) {
@@ -38,11 +38,9 @@ export const uploadTableAll = async () => {
 
 export const upload = async (data: FormData) => {
   "use server";
-
   const files: File[] = Array.from(data.getAll("files")) as File[];
-
   if (files.length === 0) {
-    throw new Error("No files uploaded");
+    return { success: false, info: "No files uploaded" };
   }
 
   async function ensureDirectoryExists(filePath: string) {
@@ -136,7 +134,7 @@ export const upload = async (data: FormData) => {
     const folder = determineFolder(mimeType, extension);
 
     if (!folder) {
-      throw new Error("Unsupported file type");
+      return { success: false, info: "Unsupported file type" };
     }
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -170,8 +168,39 @@ export const upload = async (data: FormData) => {
         },
       });
     } else {
-      console.log("file exist");
+      return { success: false, info: "file exist" };
     }
   }
   return { success: true };
+};
+
+export const delFile = async (Id:number) =>{
+  try{
+    var path = await prisma.uploads.findFirst({
+      where:{
+        id: Id
+      },
+      select:{
+        file_name:true
+      }
+    })
+    
+    if(typeof(path)!="object") return {
+      success: false,
+      info: "not found file"
+    }
+    const filePath = join("./public/tmp", path);
+    // await fsPromises.unlink(filePath);
+    await prisma.uploads.delete({
+      where:{
+        id: Id
+      }
+    })
+  }catch(e){
+    return {
+      success: false,
+      info: e
+    }
+  }
+  return {success:true}
 }
