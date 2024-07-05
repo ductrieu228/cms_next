@@ -2,10 +2,9 @@ import { uploads } from "@prisma/client";
 import Row from "./row";
 
 const Table = ({data}:{data:uploads[]|[]}) => {
-  console.log(data);
   return (
-    <table className="w-full divide-y divide-gray-300" id="table-uploads">
-      <thead>
+    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" id="table-uploads">
+      <thead className="text-xs text-gray-700 uppercase bg-blue-100 dark:bg-gray-700 dark:text-gray-400">
         <tr>
           <th
             scope="col"
@@ -45,10 +44,10 @@ const Table = ({data}:{data:uploads[]|[]}) => {
           ></th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200 bg-white" id="table-content">
+      <tbody  id="table-content">
         {data.length
           ? data.map((post) => <Row key={post.id} dataAll={post} />)
-          : <><tr>
+          : <><tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
           <td>No file found</td>
         </tr></>}
       </tbody>

@@ -27,7 +27,7 @@ export default function Layout({
             <Sidebar />
             <main className="overflow-hidden h-screen">
               {/* <!----------------- Header -----------------> */}
-              <header className="flex items-center justify-between p-2 sticky top-0 bg-white">
+              <header className="flex items-center justify-between sticky p-2 top-0 bg-white">
                 <div className="flex items-center justify-between">
                   <a
                     href="#sidenav-open"
@@ -56,7 +56,7 @@ export default function Layout({
                 
               </header>
               {/* <!----------------- Main -----------------> */}
-              <div className="w-full bg-white p-4 h-full overflow-hidden overflow-y-auto">
+              <div className="w-full bg-white p-4 h-full overflow-hidden">
                 {children}
               </div>
             </main>

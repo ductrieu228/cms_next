@@ -3,14 +3,57 @@ import Image from "next/image";
 import { format } from "date-fns";
 
 const Row = ({ dataAll }: { dataAll: uploads }) => {
+  var image_symbol_path = "/uploads/icons8-file.svg"
+  if(dataAll.file_path?.includes("documents")){
+    if(dataAll.file_path?.includes(".doc")){
+      image_symbol_path = "/uploads/icons8-word.svg";
+    }
+    else
+    image_symbol_path = "/uploads/icons8-document.svg";
+  }
+  else if(dataAll.file_path?.includes(".eps")){
+    image_symbol_path = "/uploads/icons8-eps-96.png";
+  }
+  else if(dataAll.file_path?.includes(".tiff")){
+    image_symbol_path = "/uploads/icons8-tiff-file-96.png";
+  }
+  else if(dataAll.file_path?.includes(".heic") || dataAll.file_path?.includes(".heif")){
+    image_symbol_path = "/uploads/icons8-heic-80.png";
+  }
+  else if(dataAll.file_path?.includes("fonts")){
+    image_symbol_path = "/uploads/icons8-font-96.png";
+  }
+  else if(dataAll.file_path?.includes("powerpoints")){
+    image_symbol_path = "/uploads/icons8-powerpoint.svg";
+  }
+  else if(dataAll.file_path?.includes("pdfs")){
+    image_symbol_path = "/uploads/icons8-pdf-96.png";
+  }
+  else if(dataAll.file_path?.includes("excels")){
+    image_symbol_path = "/uploads/icons8-excel.svg";
+  }
+  else if(dataAll.file_path?.includes("archives")){
+    image_symbol_path = "/uploads/icons8-archive-96.png";
+  }
+  else if(dataAll.file_path?.includes("audios")){
+    image_symbol_path = "/uploads/icons8-audio-96.png";
+  }
+  else if(dataAll.file_path?.includes("videos")){
+    image_symbol_path = "/uploads/icons8-video-96.png";
+  }
+  
+  else if(dataAll.file_path?.includes("images")){
+    image_symbol_path = "/tmp/" + dataAll.file_path;
+  }
   return (
-    <tr>
+    <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-semibold text-gray-900">
+        
         <Image
           width={32}
           height={32}
-          className="w-8 h-8"
-          src="/uploads/icons8-document.svg"
+          className="w-8 h-auto "
+          src={image_symbol_path}
           alt="Text file"
         />
       </td>
