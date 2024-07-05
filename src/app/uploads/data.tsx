@@ -13,10 +13,9 @@ const Data = ({data}:{data:uploads[]}) => {
 
   return (
     <div className="">
-      <h1 className="mt-2 p-2 mb-8 text-xl font-bold text-gray-900">Uploads</h1>
       <div className="flex h-screen gap-8 mt-4 p-2">
         <div className="max-w-full w-screen mx-auto space-y-6">
-          <div className="p-4 bg-white shadow">
+          <div className="p-4 bg-white shadow border border-gray-200">
             <div className="w-full">
               <Find onUpdateData={handleUpdateData} />
 
