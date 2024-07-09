@@ -3,10 +3,11 @@
 import { uploadTable, uploadTableAll } from "@/libs/actions";
 import { uploads } from "@prisma/client";
 import { useState, useEffect } from "react";
-const Find = ({ onUpdateData }: { onUpdateData: Function }) => {
+const Find = ({ onUpdateData, status, callback }: { onUpdateData: Function; status:boolean; callback:Function }) => {
   const [input, setInput] = useState<string | "">("");
   const [results, setResults] = useState<uploads[]>([]);
-
+  
+  const [delMultiple, setDelMultiple] = useState<boolean>(false);
   const handleKeyPress = (event:any) => {
     if (event.key === 'Enter') {
       // Handle your logic here, e.g., submit form or trigger an action
@@ -14,7 +15,12 @@ const Find = ({ onUpdateData }: { onUpdateData: Function }) => {
     }
   };
 
-
+  const handleMultipleDel = async ()=>{
+    if(delMultiple){
+      const test = await callback();
+      console.log(test)
+    }
+  }
   useEffect(() => {
     const getData = async () => {
       if (input) {
@@ -39,7 +45,9 @@ const Find = ({ onUpdateData }: { onUpdateData: Function }) => {
     } else {
       getAllData();
     }
-  }, [input]);
+    if(status) setDelMultiple(true);
+    else setDelMultiple(false);
+  }, [input, status]);
 
   function handleChange(e: any) {
     setInput(e.target.value);
@@ -63,7 +71,13 @@ const Find = ({ onUpdateData }: { onUpdateData: Function }) => {
           onKeyPress={handleKeyPress}
         />
       </div>
-      <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+      <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex gap-4">
+        <a
+          className={`${!status ? "opacity-30" : "opacity-100 cursor-pointer hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"}  rounded-md bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm  `}
+            onClick={handleMultipleDel}
+        >
+        削除
+        </a>
         <a
           type="button"
           href="/uploads/create"

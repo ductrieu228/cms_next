@@ -2,9 +2,11 @@
 
 import { uploads } from "@prisma/client";
 import prisma from "./client";
-import { promises as fsPromises, constants } from "fs";
+import { promises as fsPromises, constants, fstat } from "fs";
+const fs = require('fs');
 import { join, dirname } from "path";
 import { Buffer } from "buffer";
+import { info } from "console";
 
 export const uploadTable = async (value: string) => {
   try {
@@ -175,22 +177,26 @@ export const upload = async (data: FormData) => {
 };
 
 export const delFile = async (Id:number) =>{
+  console.log(typeof(Id));
   try{
     var path = await prisma.uploads.findFirst({
       where:{
         id: Id
       },
-      select:{
-        file_name:true
-      }
     })
     
-    if(typeof(path)!="object") return {
+    if(!path) return {
       success: false,
       info: "not found file"
     }
-    const filePath = join("./public/tmp", path);
-    // await fsPromises.unlink(filePath);
+    var filePath = "./public/tmp/" + path.file_path;
+    if(filePath == "./public/tmp/")
+      return {
+        success: false,
+        info: "not found file path"
+      }
+      console.log(filePath)
+    await fsPromises.unlink(filePath);
     await prisma.uploads.delete({
       where:{
         id: Id
@@ -202,5 +208,51 @@ export const delFile = async (Id:number) =>{
       info: e
     }
   }
-  return {success:true}
+  const allFile = await prisma.uploads.findMany();
+  return {success:true, info: allFile}
+}
+export const delMultipleFile = async (Id:number[]) =>{
+  Id.forEach(async(e)=>{
+    try{
+      var path = await prisma.uploads.findFirst({
+        where:{
+          id:e
+        },
+      })
+      
+      if(!path) return {
+        success: false,
+        info: "not found file"
+      }
+      var filePath = "./public/tmp/" + path.file_path;
+      if(filePath == "./public/tmp/")
+        return {
+          success: false,
+          info: "not found file path"
+        }
+      await fsPromises.unlink(filePath);
+      
+    }catch(e){
+      return {
+        success: false,
+        info: "Can not delete physic file"
+      }
+    }
+  })
+  try {
+    await prisma.uploads.deleteMany({
+      where:{
+        id: {
+          in: Id
+        }
+      }
+    })
+  } catch (error) {
+    return {
+      success: false,
+      info: "Can not delete in DB"
+    }
+  }
+  const allFile = await prisma.uploads.findMany();
+  return {success:true, info: allFile}
 }
